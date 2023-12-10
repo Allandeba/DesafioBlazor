@@ -1,0 +1,55 @@
+﻿@page "/localities"
+@attribute [StreamRendering(true)]
+@rendermode InteractiveServer
+
+<h1>Localities IBGE</h1>
+<button class="btn btn-primary" @onclick="NewLocality">New</button>
+<br>
+
+@if (!localities.Any())
+{
+    <p class="text-center">
+        @if (!string.IsNullOrEmpty(Erro))
+        {
+            <em>@Erro</em>
+        }
+        else
+        {
+            <em>Loading...</em>
+        }
+    </p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>City</th>
+                <th>State</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var locality in localities)
+            {
+                <tr>
+                    <td>@locality.Id</td>
+                    <td>@locality.City</td>
+                    <td>@locality.State</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private string Erro = string.Empty;
+    private IEnumerable<IBGE> localities { get; set; } = Enumerable.Empty<IBGE>();
+
+    protected override async Task OnInitializedAsync() => localities = await _context.IBGE.AsNoTracking().ToListAsync();
+
+    private async Task NewLocality()
+    {
+        return;
+    }
+}
