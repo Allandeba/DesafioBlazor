@@ -21,7 +21,7 @@
         <ValidationMessage For="@(() => model.State)" />
     </div>
 
-    @if (errorMessage != null)
+    @if (!string.IsNullOrEmpty(errorMessage))
     {
         <div class="alert alert-danger" role="alert">
             @errorMessage

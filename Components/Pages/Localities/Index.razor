@@ -3,15 +3,15 @@
 @rendermode InteractiveServer
 
 <h1>Localities IBGE</h1>
-<button class="btn btn-primary" @onclick="NewLocality">New</button>
+<button class="btn btn-primary" @onclick="NewLocality">Create</button>
 <br>
 
 @if (!localities.Any())
 {
     <p class="text-center">
-        @if (!string.IsNullOrEmpty(Erro))
+        @if (!string.IsNullOrEmpty(ErrorMessage))
         {
-            <em>@Erro</em>
+            <em>@ErrorMessage</em>
         }
         else
         {
@@ -27,6 +27,7 @@ else
                 <th>Id</th>
                 <th>City</th>
                 <th>State</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -36,6 +37,9 @@ else
                     <td>@locality.Id</td>
                     <td>@locality.City</td>
                     <td>@locality.State</td>
+                    <td>
+                        <button class="btn btn-danger" @onclick="() => DeleteLocality(locality.Id)">Delete</button>
+                    </td>
                 </tr>
             }
         </tbody>
@@ -43,13 +47,28 @@ else
 }
 
 @code {
-    private string Erro = string.Empty;
+    private string ErrorMessage = string.Empty;
     private IEnumerable<IBGE> localities { get; set; } = Enumerable.Empty<IBGE>();
 
     protected override async Task OnInitializedAsync() => localities = await _context.IBGE.AsNoTracking().ToListAsync();
 
-    private async Task NewLocality()
+    private void NewLocality() => _navigation.NavigateTo("/localities/create", false);
+
+    private async Task DeleteLocality(string id)
     {
-        _navigation.NavigateTo("/localities/create", false);
+        try
+        {
+            IBGE locality = await _context.IBGE.FirstOrDefaultAsync(x => x.Id.ToLower().Equals(id.ToLower()));
+            if (locality == null)
+                throw new Exception("Not found");
+
+            _context.IBGE.Remove(locality);
+            await _context.SaveChangesAsync();
+            _navigation.NavigateTo("/localities", true);
+        }
+        catch (Exception e)
+        {
+            ErrorMessage = e.InnerException.Message;
+        }
     }
 }
