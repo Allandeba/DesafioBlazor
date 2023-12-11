@@ -1,0 +1,52 @@
+﻿@page "/localities/create"
+@rendermode InteractiveServer
+
+<h1>Create Locality</h1>
+<br>
+
+<EditForm Model="model" OnValidSubmit="@HandleSubmitAsync">
+    <DataAnnotationsValidator />
+
+    <div class="mb-3">
+        <label for="Id" class="form-label">Id</label>
+        <InputText id="Id" class="form-control" type="text" @bind-Value="model.Id" />
+        <ValidationMessage For="@(() => model.Id)" />
+
+        <label for="City" class="form-label">City</label>
+        <InputText id="City" class="form-control" type="text" @bind-Value="model.City" />
+        <ValidationMessage For="@(() => model.City)" />
+
+        <label for="State" class="form-label">State</label>
+        <InputText id="State" class="form-control" type="text" @bind-Value="model.State" />
+        <ValidationMessage For="@(() => model.State)" />
+    </div>
+
+    @if (errorMessage != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @errorMessage
+        </div>
+    }
+
+    <button class="btn btn-primary" type="submit">Save</button>
+</EditForm>
+
+@code {
+    private IBGE model { get; set; } = new();
+    private string? errorMessage = null;
+
+    private async Task HandleSubmitAsync()
+    {
+        errorMessage = null;
+        try
+        {
+            await _context.IBGE.AddAsync(model);
+            await _context.SaveChangesAsync();
+            _navigation.NavigateTo("/Localities", false);
+        }
+        catch (Exception e)
+        {
+            errorMessage = e.InnerException.Message;
+        }
+    }
+}
