@@ -5,6 +5,20 @@
 <h1>Localities IBGE</h1>
 <button class="btn btn-primary" @onclick="NewLocality">Create</button>
 <br>
+<br>
+
+<div class="input-group mb-3">
+    <InputText class="form-control" placeholder="Insira o nome da cidade" aria-label="Insira o nome da cidade"
+        aria-describedby="basic-addon2" @bind-Value="SearchCity" />
+
+    <div class="input-group-append">
+        <button class="btn btn-outline-secondary" type="button" @onclick="SearchCities">Pesquisar</button>
+    </div>
+</div>
+
+<br>
+<br>
+
 
 @if (!localities.Any())
 {
@@ -31,7 +45,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var locality in localities)
+            @foreach (var locality in GetFilteredLocalities())
             {
                 <tr>
                     <td>@locality.Id</td>
@@ -49,8 +63,16 @@ else
 @code {
     private string ErrorMessage = string.Empty;
     private IEnumerable<IBGE> localities { get; set; } = Enumerable.Empty<IBGE>();
+    private string SearchCity { get; set; } = string.Empty;
 
-    protected override async Task OnInitializedAsync() => localities = await _context.IBGE.AsNoTracking().ToListAsync();
+    private IEnumerable<IBGE> GetFilteredLocalities() => localities.Where(x => string.IsNullOrEmpty(SearchCity) ||
+    x.City.ToLower().Contains(SearchCity.ToLower()));
+
+    protected override async Task OnInitializedAsync() => await LoadCitiesAsync();
+
+    private async Task LoadCitiesAsync() =>
+    localities = await _context.IBGE.AsNoTracking().Where(x =>
+    string.IsNullOrEmpty(SearchCity) || x.City.ToLower().Contains(SearchCity.ToLower())).ToListAsync();
 
     private void NewLocality() => _navigation.NavigateTo("/localities/create", false);
 
@@ -64,11 +86,19 @@ else
 
             _context.IBGE.Remove(locality);
             await _context.SaveChangesAsync();
-            _navigation.NavigateTo("/localities", true);
+            await LoadCitiesAsync();
         }
         catch (Exception e)
         {
             ErrorMessage = e.InnerException.Message;
+        }
+    }
+
+    private async Task SearchCities()
+    {
+        if (string.IsNullOrEmpty(SearchCity))
+        {
+            await LoadCitiesAsync();
         }
     }
 }
