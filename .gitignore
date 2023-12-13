@@ -58,3 +58,6 @@ obj
 
 # MacOS Files
 .DS_Store
+
+# Env files
+.env
