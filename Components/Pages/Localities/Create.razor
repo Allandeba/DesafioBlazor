@@ -1,7 +1,8 @@
 ﻿@page "/localities/create"
 @rendermode InteractiveServer
+@attribute [Authorize]
 
-<h1>Create Locality</h1>
+<h1>Criar uma localidade</h1>
 <br>
 
 <EditForm Model="model" OnValidSubmit="@HandleSubmitAsync">
