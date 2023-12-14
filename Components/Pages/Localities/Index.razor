@@ -72,7 +72,7 @@ else
 }
 
 @code {
-    private string ErrorMessage = string.Empty;
+    private string? ErrorMessage = null;
     private bool isLoading;
     private bool searchPerformed;
     private string searchTypeString = "Code";
@@ -87,15 +87,13 @@ else
         );
     }
 
-    private string search;
+    private string? search = null;
     private enum SearchType
     {
         Code,
         City,
         State
     };
-    private SearchType searchType;
-
     protected override async Task OnInitializedAsync()
     {
         searchTypeString = "Code"; // ou o valor padrão desejado
@@ -206,7 +204,7 @@ else
     {
         try
         {
-            IBGE locality = await _context.IBGE.FirstOrDefaultAsync(x => x.Id.ToLower().Equals(id.ToLower()));
+            IBGE? locality = await _context.IBGE.FirstOrDefaultAsync(x => x.Id.ToLower().Equals(id.ToLower()));
             if (locality == null)
                 throw new Exception("Not found");
 
@@ -216,7 +214,7 @@ else
         }
         catch (Exception e)
         {
-            ErrorMessage = e.InnerException.Message;
+            ErrorMessage = e.InnerException?.Message ?? e.Message;
         }
     }
 
