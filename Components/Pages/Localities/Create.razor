@@ -46,7 +46,7 @@
         }
         catch (Exception e)
         {
-            errorMessage = e.InnerException.Message;
+            errorMessage = e?.InnerException?.Message;
         }
     }
 }

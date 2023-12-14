@@ -8,11 +8,19 @@
 <br>
 <br>
 
+@if(!string.IsNullOrEmpty(ErrorMessage))
+{
+    <div class="alert alert-danger">
+        @ErrorMessage
+    </div>
+}
+
 <div class="input-group mb-3">
-    <InputSelect @bind-Value="searchTypeString">
-        <option value="Code">Código</option>
-        <option value="City">Cidade</option>
-        <option value="State">Estado</option>
+    <InputSelect @bind-Value="searchType">
+        @foreach (var searchType in Enum.GetValues<SearchType>())
+        {
+            <option value="@searchType">@searchType</option>
+        }
     </InputSelect>
     <InputText class="form-control" @bind-Value="search"></InputText>
 
@@ -24,11 +32,10 @@
 <br>
 <br>
 
-
 @if (isLoading && searchPerformed)
 {
     <p class="text-center">
-        <em>Loading...</em>
+        <em>Carregando...</em>
     </p>
 }
 else if (!localities.Any())
@@ -56,7 +63,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var locality in GetFilteredLocalities())
+            @foreach (var locality in localities)
             {
                 <tr>
                     <td>@locality.Id</td>
@@ -72,41 +79,31 @@ else
 }
 
 @code {
-    private string ErrorMessage = string.Empty;
+    private string? ErrorMessage = null;
     private bool isLoading;
     private bool searchPerformed;
-    private string searchTypeString = "Code";
+    private SearchType searchType = SearchType.Code;
     private IEnumerable<IBGE> localities { get; set; } = Enumerable.Empty<IBGE>();
-    private IEnumerable<IBGE> GetFilteredLocalities()
-    {
-        return localities.Where(x =>
-        string.IsNullOrEmpty(search) ||
-        x.City.Equals(search, StringComparison.OrdinalIgnoreCase) ||
-        x.State.Equals(search, StringComparison.OrdinalIgnoreCase) ||
-        x.Id.Equals(search, StringComparison.OrdinalIgnoreCase)
-        );
-    }
 
-    private string search;
+    private string? search = null;
     private enum SearchType
     {
         Code,
         City,
         State
     };
-    private SearchType searchType;
-
     protected override async Task OnInitializedAsync()
     {
-        searchTypeString = "Code"; // ou o valor padrão desejado
-        await LoadCitiesAsync();
+        await base.OnInitializedAsync();
+        searchType = SearchType.Code;
+        await LoadAllContentAsync();
     }
 
-    private async Task LoadCitiesAsync()
+    private async Task LoadAllContentAsync()
     {
-        localities = await _context.IBGE.AsNoTracking()
-        .Where(x => string.IsNullOrEmpty(search) || x.City.Contains(search, StringComparison.OrdinalIgnoreCase))
-        .ToListAsync();
+        localities = await _context.IBGE
+            .AsNoTracking()
+            .ToListAsync();
 
         StateHasChanged();
     }
@@ -116,11 +113,11 @@ else
     private async Task Search()
     {
         ErrorMessage = null;
+        localities = Enumerable.Empty<IBGE>();
 
         if (string.IsNullOrWhiteSpace(search))
         {
-            // Carrega a lista completa (ou qualquer outra lógica desejada para pesquisa em branco)
-            await LoadCitiesAsync();
+            await LoadAllContentAsync();
             searchPerformed = false; // Define como false para permitir voltar à lista completa
             return;
         }
@@ -130,64 +127,54 @@ else
 
         try
         {
-            IEnumerable<IBGE> filteredLocalities;
-
-            switch (searchTypeString)
+            switch (searchType)
             {
-                case "Code":
+                case SearchType.Code:
                     // Verifica se o valor é composto apenas por números
-                    if (int.TryParse(search, out _))
+                    if (!int.TryParse(search, out _))
                     {
-                        filteredLocalities = await _context.IBGE
-                        .Where(x => EF.Functions.Like(x.Id, search))
+                        ErrorMessage = "Código deve ser numérico e ter no máximo 7 digitos";
+                        return;
+                    }
+
+                    localities = await _context.IBGE
+                        .Where(x => EF.Functions.ILike(x.Id, $"%{search}%"))
                         .AsNoTracking()
                         .ToListAsync();
-                    }
-                    else
-                    {
-                        // Caso contrário, retorna uma lista vazia
-                        filteredLocalities = Enumerable.Empty<IBGE>();
-                    }
                     break;
 
-                case "City":
+                case SearchType.City:
                     // Verifica se o valor tem pelo menos 3 caracteres
-                    if (search.Length >= 3)
+                    if (search.Length < 3)
                     {
-                        filteredLocalities = await _context.IBGE
-                        .Where(x => EF.Functions.Like(x.City, search))
+                        ErrorMessage = "Cidade deve conter ao menos 3 caracteres.";
+                        return;
+                    }
+
+                    localities = await _context.IBGE
+                        .Where(x => EF.Functions.ILike(x.City, $"%{search}%"))
                         .AsNoTracking()
                         .ToListAsync();
-                    }
-                    else
-                    {
-                        // Caso contrário, retorna uma lista vazia
-                        filteredLocalities = Enumerable.Empty<IBGE>();
-                    }
                     break;
 
-                case "State":
+                case SearchType.State:
                     // Verifica se o tipo de pesquisa é "State" e se o valor é uma sigla de estado
-                    if (Regex.IsMatch(search, "^[A-Z]{2}$"))
+                    if (!Regex.IsMatch(search, "^[A-Za-z]{2}$", RegexOptions.IgnoreCase))
                     {
-                        filteredLocalities = await _context.IBGE
-                        .Where(x => EF.Functions.Like(x.State, search))
+                        ErrorMessage = "Estado deve conter apenas letras e ter exatamente 2 caracteres.";
+                        return;
+                    }
+
+                    localities = await _context.IBGE
+                        .Where(x => EF.Functions.ILike(x.State, $"%{search}%"))
                         .AsNoTracking()
                         .ToListAsync();
-                    }
-                    else
-                    {
-                        // Caso contrário, retorna uma lista vazia
-                        filteredLocalities = Enumerable.Empty<IBGE>();
-                    }
                     break;
 
                 default:
-                    filteredLocalities = Enumerable.Empty<IBGE>();
+                    ErrorMessage = "SearchType not implemented!";
                     break;
             }
-
-            localities = filteredLocalities;
 
             StateHasChanged();
         }
@@ -206,17 +193,17 @@ else
     {
         try
         {
-            IBGE locality = await _context.IBGE.FirstOrDefaultAsync(x => x.Id.ToLower().Equals(id.ToLower()));
+            IBGE? locality = await _context.IBGE.FirstOrDefaultAsync(x => x.Id.ToLower().Equals(id.ToLower()));
             if (locality == null)
-                throw new Exception("Not found");
+                ErrorMessage = "Locality not founded!";
 
             _context.IBGE.Remove(locality);
             await _context.SaveChangesAsync();
-            await LoadCitiesAsync();
+            await LoadAllContentAsync();
         }
         catch (Exception e)
         {
-            ErrorMessage = e.InnerException.Message;
+            ErrorMessage = e.InnerException?.Message ?? e.Message;
         }
     }
 
