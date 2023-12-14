@@ -1,14 +1,15 @@
 ﻿@page "/localities"
-@attribute [StreamRendering(true)]
 @using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+@attribute [Authorize]
 @rendermode InteractiveServer
 
-<h1>Localities IBGE</h1>
-<button class="btn btn-primary" @onclick="NewLocality">Create</button>
+<h1>Localidades IBGE</h1>
+<button class="btn btn-primary" @onclick="NewLocality">Criar</button>
 <br>
 <br>
 
-@if(!string.IsNullOrEmpty(ErrorMessage))
+@if (!string.IsNullOrEmpty(ErrorMessage))
 {
     <div class="alert alert-danger">
         @ErrorMessage
@@ -19,7 +20,7 @@
     <InputSelect @bind-Value="searchType">
         @foreach (var searchType in Enum.GetValues<SearchType>())
         {
-            <option value="@searchType">@searchType</option>
+            <option value="@searchType">@GetSearchTypeText(searchType)</option>
         }
     </InputSelect>
     <InputText class="form-control" @bind-Value="search"></InputText>
@@ -70,7 +71,7 @@ else
                     <td>@locality.City</td>
                     <td>@locality.State</td>
                     <td>
-                        <button class="btn btn-danger" @onclick="() => DeleteLocality(locality.Id)">Delete</button>
+                        <button class="btn btn-danger" @onclick="() => DeleteLocality(locality.Id)">Deletar</button>
                     </td>
                 </tr>
             }
@@ -86,12 +87,12 @@ else
     private IEnumerable<IBGE> localities { get; set; } = Enumerable.Empty<IBGE>();
 
     private string? search = null;
-    private enum SearchType
+    public enum SearchType
     {
         Code,
         City,
         State
-    };
+    }
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
@@ -102,8 +103,8 @@ else
     private async Task LoadAllContentAsync()
     {
         localities = await _context.IBGE
-            .AsNoTracking()
-            .ToListAsync();
+        .AsNoTracking()
+        .ToListAsync();
 
         StateHasChanged();
     }
@@ -138,9 +139,9 @@ else
                     }
 
                     localities = await _context.IBGE
-                        .Where(x => EF.Functions.ILike(x.Id, $"%{search}%"))
-                        .AsNoTracking()
-                        .ToListAsync();
+                    .Where(x => EF.Functions.ILike(x.Id, $"%{search}%"))
+                    .AsNoTracking()
+                    .ToListAsync();
                     break;
 
                 case SearchType.City:
@@ -152,9 +153,9 @@ else
                     }
 
                     localities = await _context.IBGE
-                        .Where(x => EF.Functions.ILike(x.City, $"%{search}%"))
-                        .AsNoTracking()
-                        .ToListAsync();
+                    .Where(x => EF.Functions.ILike(x.City, $"%{search}%"))
+                    .AsNoTracking()
+                    .ToListAsync();
                     break;
 
                 case SearchType.State:
@@ -166,9 +167,9 @@ else
                     }
 
                     localities = await _context.IBGE
-                        .Where(x => EF.Functions.ILike(x.State, $"%{search}%"))
-                        .AsNoTracking()
-                        .ToListAsync();
+                    .Where(x => EF.Functions.ILike(x.State, $"%{search}%"))
+                    .AsNoTracking()
+                    .ToListAsync();
                     break;
 
                 default:
@@ -188,7 +189,20 @@ else
         }
     }
 
-
+    private string GetSearchTypeText(SearchType searchType)
+    {
+        switch (searchType)
+        {
+            case SearchType.Code:
+                return "Código";
+            case SearchType.City:
+                return "Cidade";
+            case SearchType.State:
+                return "Estado";
+            default:
+                return "Não implementado";
+        }
+    }
     private async Task DeleteLocality(string id)
     {
         try
