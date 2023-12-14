@@ -8,15 +8,15 @@
     <DataAnnotationsValidator />
 
     <div class="mb-3">
-        <label for="Id" class="form-label">Id</label>
+        <label for="Id" class="form-label">Código</label>
         <InputText id="Id" class="form-control" type="text" @bind-Value="model.Id" />
         <ValidationMessage For="@(() => model.Id)" />
 
-        <label for="City" class="form-label">City</label>
+        <label for="City" class="form-label">Cidade</label>
         <InputText id="City" class="form-control" type="text" @bind-Value="model.City" />
         <ValidationMessage For="@(() => model.City)" />
 
-        <label for="State" class="form-label">State</label>
+        <label for="State" class="form-label">Estado</label>
         <InputText id="State" class="form-control" type="text" @bind-Value="model.State" />
         <ValidationMessage For="@(() => model.State)" />
     </div>
@@ -28,7 +28,7 @@
         </div>
     }
 
-    <button class="btn btn-primary" type="submit">Save</button>
+    <button class="btn btn-primary" type="submit">Salvar</button>
 </EditForm>
 
 @code {
