@@ -8,6 +8,13 @@
 <br>
 <br>
 
+@if(!string.IsNullOrEmpty(ErrorMessage))
+{
+    <div class="alert alert-danger">
+        @ErrorMessage
+    </div>
+}
+
 <div class="input-group mb-3">
     <InputSelect @bind-Value="searchType">
         @foreach (var searchType in Enum.GetValues<SearchType>())
@@ -25,11 +32,10 @@
 <br>
 <br>
 
-
 @if (isLoading && searchPerformed)
 {
     <p class="text-center">
-        <em>Loading...</em>
+        <em>Carregando...</em>
     </p>
 }
 else if (!localities.Any())
@@ -107,6 +113,7 @@ else
     private async Task Search()
     {
         ErrorMessage = null;
+        localities = Enumerable.Empty<IBGE>();
 
         if (string.IsNullOrWhiteSpace(search))
         {
@@ -123,6 +130,13 @@ else
             switch (searchType)
             {
                 case SearchType.Code:
+                    // Verifica se o valor é composto apenas por números
+                    if (!int.TryParse(search, out _))
+                    {
+                        ErrorMessage = "Código deve ser numérico e ter no máximo 7 digitos";
+                        return;
+                    }
+
                     localities = await _context.IBGE
                         .Where(x => EF.Functions.ILike(x.Id, $"%{search}%"))
                         .AsNoTracking()
@@ -130,6 +144,13 @@ else
                     break;
 
                 case SearchType.City:
+                    // Verifica se o valor tem pelo menos 3 caracteres
+                    if (search.Length < 3)
+                    {
+                        ErrorMessage = "Cidade deve conter ao menos 3 caracteres.";
+                        return;
+                    }
+
                     localities = await _context.IBGE
                         .Where(x => EF.Functions.ILike(x.City, $"%{search}%"))
                         .AsNoTracking()
@@ -137,6 +158,13 @@ else
                     break;
 
                 case SearchType.State:
+                    // Verifica se o tipo de pesquisa é "State" e se o valor é uma sigla de estado
+                    if (!Regex.IsMatch(search, "^[A-Za-z]{2}$", RegexOptions.IgnoreCase))
+                    {
+                        ErrorMessage = "Estado deve conter apenas letras e ter exatamente 2 caracteres.";
+                        return;
+                    }
+
                     localities = await _context.IBGE
                         .Where(x => EF.Functions.ILike(x.State, $"%{search}%"))
                         .AsNoTracking()
@@ -167,7 +195,7 @@ else
         {
             IBGE? locality = await _context.IBGE.FirstOrDefaultAsync(x => x.Id.ToLower().Equals(id.ToLower()));
             if (locality == null)
-                throw new Exception("Not found");
+                ErrorMessage = "Locality not founded!";
 
             _context.IBGE.Remove(locality);
             await _context.SaveChangesAsync();
