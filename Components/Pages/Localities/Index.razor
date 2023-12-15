@@ -198,7 +198,10 @@ else
         {
             IBGE? locality = await _context.IBGE.FirstOrDefaultAsync(x => x.Id.ToLower().Equals(id.ToLower()));
             if (locality == null)
+            {
                 ErrorMessage = "Locality not founded!";
+                return;
+            }
 
             _context.IBGE.Remove(locality);
             await _context.SaveChangesAsync();
