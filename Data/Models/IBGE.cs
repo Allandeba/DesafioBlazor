@@ -14,12 +14,12 @@ public class IBGE
     [Required(ErrorMessage = Const.RequiredMessage)]
     [Display(Name = "Estado")]
     [MaxLength(2, ErrorMessage = Const.LengthMessage)]
-    [RegularExpression(Const.OnlyStringExpression, ErrorMessage = Const.OnlyLettersMessage)]
+    [RegularExpression(Const.OnlyStringAndWhiteSpaceExpression, ErrorMessage = Const.OnlyLettersMessage)]
     public string  State { get; set; } = string.Empty;
 
     [Required(ErrorMessage = Const.RequiredMessage)]
     [Display(Name = "Cidade")]
     [MaxLength(80, ErrorMessage = Const.LengthMessage)]
-    [RegularExpression(Const.OnlyStringExpression, ErrorMessage = Const.OnlyLettersMessage)]
+    [RegularExpression(Const.OnlyStringAndWhiteSpaceExpression, ErrorMessage = Const.OnlyLettersMessage)]
     public string City { get; set; } = string.Empty;
 }

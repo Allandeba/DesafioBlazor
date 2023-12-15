@@ -7,5 +7,5 @@ public class Const
     public const string OnlyNumbersMessage = "O campo {0} deve conter somente números";
     public const string OnlyLettersMessage = "O campo {0} deve conter somente letras";
     public const string OnlyNumbersExpression = @"^[0-9]+$";
-    public const string OnlyStringExpression = @"^[a-zA-Z]+$";
+    public const string OnlyStringAndWhiteSpaceExpression = @"^[a-zA-Z ]+$";
 }
