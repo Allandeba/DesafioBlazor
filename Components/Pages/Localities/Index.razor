@@ -18,9 +18,9 @@
 
 <div class="input-group mb-3">
     <InputSelect @bind-Value="searchType">
-        @foreach (var searchType in Enum.GetValues<SearchType>())
+        @foreach (var value in Enum.GetValues<SearchType>())
         {
-            <option value="@searchType">@GetSearchTypeText(searchType)</option>
+            <option value="@value">@(EnumHelper.GetEnumDisplayName(value))</option>
         }
     </InputSelect>
     <InputText class="form-control" @bind-Value="search"></InputText>
@@ -89,8 +89,11 @@ else
     private string? search = null;
     public enum SearchType
     {
+        [Display(Name = "Código")]
         Code,
+        [Display(Name = "Cidade")]
         City,
+        [Display(Name = "Estado")]
         State
     }
     protected override async Task OnInitializedAsync()
@@ -189,20 +192,6 @@ else
         }
     }
 
-    private string GetSearchTypeText(SearchType searchType)
-    {
-        switch (searchType)
-        {
-            case SearchType.Code:
-                return "Código";
-            case SearchType.City:
-                return "Cidade";
-            case SearchType.State:
-                return "Estado";
-            default:
-                return "Não implementado";
-        }
-    }
     private async Task DeleteLocality(string id)
     {
         try
