@@ -1,9 +1,16 @@
+
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Montserrat','sans-serif';
+    background-image: linear-gradient(rgb(134, 201, 195),rgb(81, 230, 81),blue);
+    
+    
 }
+
+
 
 a, .btn-link {
     color: #006bb7;
+    
 }
 
 .btn-primary {
@@ -22,6 +29,8 @@ a, .btn-link {
 
 h1:focus {
     outline: none;
+    font-family: 'Montserrat','sans-serif';
+    font-size: 100px;
 }
 
 .valid.modified:not([type=checkbox]) {
@@ -34,6 +43,7 @@ h1:focus {
 
 .validation-message {
     color: #e50000;
+    font-family: 'Montserrat';
 }
 
 .blazor-error-boundary {
