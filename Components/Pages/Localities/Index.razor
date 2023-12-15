@@ -9,10 +9,10 @@
 <br>
 <br>
 
-@if (!string.IsNullOrEmpty(ErrorMessage))
+@if (!string.IsNullOrEmpty(errorMessage))
 {
     <div class="alert alert-danger">
-        @ErrorMessage
+        @errorMessage
     </div>
 }
 
@@ -80,7 +80,7 @@ else
 }
 
 @code {
-    private string? ErrorMessage = null;
+    private string? errorMessage = null;
     private bool isLoading;
     private bool searchPerformed;
     private SearchType searchType = SearchType.Code;
@@ -116,7 +116,7 @@ else
 
     private async Task Search()
     {
-        ErrorMessage = null;
+        errorMessage = null;
         localities = Enumerable.Empty<IBGE>();
 
         if (string.IsNullOrWhiteSpace(search))
@@ -137,7 +137,7 @@ else
                     // Verifica se o valor é composto apenas por números
                     if (!int.TryParse(search, out _))
                     {
-                        ErrorMessage = "Código deve ser numérico e ter no máximo 7 digitos";
+                        errorMessage = "Código deve ser numérico e ter no máximo 7 digitos";
                         return;
                     }
 
@@ -151,7 +151,7 @@ else
                     // Verifica se o valor tem pelo menos 3 caracteres
                     if (search.Length < 3)
                     {
-                        ErrorMessage = "Cidade deve conter ao menos 3 caracteres.";
+                        errorMessage = "Cidade deve conter ao menos 3 caracteres.";
                         return;
                     }
 
@@ -165,7 +165,7 @@ else
                     // Verifica se o tipo de pesquisa é "State" e se o valor é uma sigla de estado
                     if (!Regex.IsMatch(search, "^[A-Za-z]{2}$", RegexOptions.IgnoreCase))
                     {
-                        ErrorMessage = "Estado deve conter apenas letras e ter exatamente 2 caracteres.";
+                        errorMessage = "Estado deve conter apenas letras e ter exatamente 2 caracteres.";
                         return;
                     }
 
@@ -176,7 +176,7 @@ else
                     break;
 
                 default:
-                    ErrorMessage = "SearchType not implemented!";
+                    errorMessage = "SearchType not implemented!";
                     break;
             }
 
@@ -184,7 +184,7 @@ else
         }
         catch (Exception e)
         {
-            ErrorMessage = e.InnerException?.Message ?? e.Message;
+            errorMessage = e.InnerException?.Message ?? e.Message;
         }
         finally
         {
@@ -199,7 +199,7 @@ else
             IBGE? locality = await _context.IBGE.FirstOrDefaultAsync(x => x.Id.ToLower().Equals(id.ToLower()));
             if (locality == null)
             {
-                ErrorMessage = "Locality not founded!";
+                errorMessage = $"Não foi encontrado uma localidade com o id {id}!";
                 return;
             }
 
@@ -209,7 +209,7 @@ else
         }
         catch (Exception e)
         {
-            ErrorMessage = e.InnerException?.Message ?? e.Message;
+            errorMessage = e.InnerException?.Message ?? e.Message;
         }
     }
 
