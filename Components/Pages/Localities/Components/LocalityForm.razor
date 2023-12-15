@@ -1,0 +1,48 @@
+<EditForm Model="@model" OnValidSubmit="@HandleSubmitAsync">
+    <DataAnnotationsValidator />
+
+    <div class="mb-3">
+        <label for="Id" class="form-label">Código</label>
+        <InputText id="Id" class="form-control" type="text" @bind-Value="model.Id" />
+        <ValidationMessage For="@(() => model.Id)" />
+
+        <label for="City" class="form-label">Cidade</label>
+        <InputText id="City" class="form-control" type="text" @bind-Value="model.City" />
+        <ValidationMessage For="@(() => model.City)" />
+
+        <label for="State" class="form-label">Estado</label>
+        <InputText id="State" class="form-control" type="text" @bind-Value="model.State" />
+        <ValidationMessage For="@(() => model.State)" />
+    </div>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            @errorMessage
+        </div>
+    }
+
+    <button class="btn btn-primary" type="submit">Salvar</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public IBGE model { get; set; } = new();
+    [Parameter]    
+    public EventCallback onValidSubmit { get; set; }
+
+    private string? errorMessage = null;
+
+    private async Task HandleSubmitAsync()
+    {
+        errorMessage = null;
+        try
+        {
+            await onValidSubmit.InvokeAsync();
+        }
+        catch (Exception e)
+        {
+            errorMessage = e?.InnerException?.Message;
+        }
+    }
+}

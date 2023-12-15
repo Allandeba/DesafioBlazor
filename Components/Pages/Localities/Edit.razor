@@ -1,0 +1,42 @@
+﻿@page "/localities/edit/{id}"
+@using DesafioBlazor.Components.Pages.Localities.Components
+@rendermode InteractiveServer
+@attribute [Authorize]
+
+<h1>Alterar uma localidade</h1>
+<br>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @errorMessage
+    </div>
+}
+else
+{
+    <LocalityForm model="@model" onValidSubmit="@HandleSubmitAsync"/>
+}
+
+@code {
+    [Parameter]
+    public string id { get; set; } = "0";
+
+    private string? errorMessage = null;
+    private IBGE model { get; set; } = new();
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        model = await _context.IBGE.FirstOrDefaultAsync(ibge => ibge.Id.ToLower().Equals(id.ToLower()));
+        if (model == null)
+        {
+            errorMessage = $"Não foi encontrado uma localidade com o id {id}!";
+            return;
+        }
+    }
+
+    private async Task HandleSubmitAsync()
+    {
+        await _context.SaveChangesAsync();
+        _navigation.NavigateTo("/Localities", false);
+    }
+}
