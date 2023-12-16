@@ -3,19 +3,12 @@
 @using System.ComponentModel.DataAnnotations
 @using DesafioBlazor.Data.SharedContext.Services
 @attribute [Authorize]
-@rendermode InteractiveServer
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
 
 <h1>Localidades IBGE</h1>
 <button class="btn btn-primary" @onclick="NewLocality">Criar</button>
 <br>
 <br>
-
-@if (!string.IsNullOrEmpty(errorMessage))
-{
-    <div class="alert alert-danger">
-        @errorMessage
-    </div>
-}
 
 <div class="input-group mb-3">
     <InputSelect @bind-Value="searchType">
@@ -34,23 +27,24 @@
 <br>
 <br>
 
-@if (isLoading && searchPerformed)
+@if (!string.IsNullOrEmpty(errorMessage))
 {
-    <p class="text-center">
-        <em>Carregando...</em>
-    </p>
+    <div class="alert alert-danger">
+        @errorMessage
+    </div>
 }
-else if (!localities.Any())
+
+@if (!localities.Any())
 {
     <p class="text-center">
-        @if (searchPerformed)
-        {
-            <em>Resultado não encontrado, por favor, observe se a pesquisa está de acordo com o campo selecionado.</em>
-        }
-        else
+        @if (string.IsNullOrEmpty(errorMessage) && !searchPerformed)
         {
             <em>Carregando...</em>
-        }
+        } 
+        else if (searchPerformed)
+        {
+            <em>Nenhum registro encontrado...</em>
+        }   
     </p>
 }
 else
@@ -85,8 +79,7 @@ else
 
 @code {
     private string? errorMessage = null;
-    private bool isLoading;
-    private bool searchPerformed;
+    private bool searchPerformed = false;
     private SearchType searchType = SearchType.Code;
     private IEnumerable<IBGE> localities { get; set; } = Enumerable.Empty<IBGE>();
 
@@ -112,8 +105,6 @@ else
         localities = await _context.IBGE
         .AsNoTracking()
         .ToListAsync();
-
-        StateHasChanged();
     }
 
     private void NewLocality() => _navigation.NavigateTo("/localities/create", false);
@@ -132,13 +123,10 @@ else
         if (string.IsNullOrWhiteSpace(search))
         {
             await LoadAllContentAsync();
-            searchPerformed = false; // Define como false para permitir voltar à lista completa
             return;
         }
 
-        isLoading = true;
-        searchPerformed = true;
-
+        searchPerformed = false;
         try
         {
             switch (searchType)
@@ -189,8 +177,6 @@ else
                     errorMessage = "Tipo de busca não implementado!";
                     break;
             }
-
-            StateHasChanged();
         }
         catch (Exception e)
         {
@@ -198,7 +184,7 @@ else
         }
         finally
         {
-            isLoading = false;
+            searchPerformed = true;
         }
     }
 
