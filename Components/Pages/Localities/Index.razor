@@ -1,29 +1,15 @@
 ﻿@page "/localities"
 @using System.Text.RegularExpressions
 @using System.ComponentModel.DataAnnotations
+@using DesafioBlazor.Components.Pages.Localities.Components
 @using DesafioBlazor.Data.SharedContext.Services
 @attribute [Authorize]
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
 
 <div class="my-4">
     <h1 class="mb-4">Localidades IBGE</h1>
-    
     <button class="btn btn-primary btn-lg mb-2" @onclick="NewLocality">Criar</button>
-
-    <EditForm Model="@searchBox" OnSubmit="@Search" FormName="SearchForm">
-        <div class="input-group mb-3">
-            <InputSelect @bind-Value="searchBox.searchType" class="btn btn-outline-secondary dropdown-toggle">
-                @foreach (var value in Enum.GetValues<Enums.SearchType>())
-                {
-                    <option value="@value">@(EnumHelper.GetEnumDisplayName(value))</option>
-                }
-            </InputSelect>
-
-            <InputText class="form-control" @bind-Value="searchBox.search"></InputText>
-
-            <button type="submit" class="btn btn-outline-secondary">Pesquisar</button>
-        </div>
-    </EditForm>
+    <SearchBoxForm model="@searchBox" onSubmit="@Search" />
 </div>
 
 @if (!string.IsNullOrEmpty(errorMessage))
