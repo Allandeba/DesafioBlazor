@@ -22,7 +22,7 @@ else
     public string id { get; set; } = "0";
 
     private string? errorMessage = null;
-    private IBGE model { get; set; } = new();
+    private IBGE? model { get; set; } = new();
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
