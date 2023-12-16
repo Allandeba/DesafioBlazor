@@ -3,7 +3,7 @@
 @using System.ComponentModel.DataAnnotations
 @using DesafioBlazor.Data.SharedContext.Services
 @attribute [Authorize]
-@rendermode InteractiveServer
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
 
 <h1>Localidades IBGE</h1>
 <button class="btn btn-primary" @onclick="NewLocality">Criar</button>
@@ -36,12 +36,16 @@
 
 @if (!localities.Any())
 {
-    @if (string.IsNullOrEmpty(errorMessage))
-    {
-        <p class="text-center">
+    <p class="text-center">
+        @if (string.IsNullOrEmpty(errorMessage) && !searchPerformed)
+        {
             <em>Carregando...</em>
-        </p>
-    }
+        } 
+        else if (searchPerformed)
+        {
+            <em>Nenhum registro encontrado...</em>
+        }   
+    </p>
 }
 else
 {
@@ -101,8 +105,6 @@ else
         localities = await _context.IBGE
         .AsNoTracking()
         .ToListAsync();
-
-        StateHasChanged();
     }
 
     private void NewLocality() => _navigation.NavigateTo("/localities/create", false);
@@ -175,12 +177,14 @@ else
                     errorMessage = "SearchType not implemented!";
                     break;
             }
-
-            StateHasChanged();
         }
         catch (Exception e)
         {
             errorMessage = e.InnerException?.Message ?? e.Message;
+        }
+        finally
+        {
+            searchPerformed = true;
         }
     }
 
