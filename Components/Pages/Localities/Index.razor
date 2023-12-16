@@ -13,7 +13,7 @@
     <EditForm Model="@searchBox" OnSubmit="@Search" FormName="SearchForm">
         <div class="input-group mb-3">
             <InputSelect @bind-Value="searchBox.searchType" class="btn btn-outline-secondary dropdown-toggle">
-                @foreach (var value in Enum.GetValues<SearchType>())
+                @foreach (var value in Enum.GetValues<Enums.SearchType>())
                 {
                     <option value="@value">@(EnumHelper.GetEnumDisplayName(value))</option>
                 }
@@ -36,14 +36,17 @@
 @if (!localities.Any())
 {
     <p class="text-center">
-        @if (string.IsNullOrEmpty(errorMessage) && !searchPerformed)
+        @if (string.IsNullOrEmpty(errorMessage))
         {
-            <em>Carregando...</em>
+            @if (searchPerformed)
+            {
+                <em>Nenhum registro encontrado...</em>
+            }
+            else
+            {
+                <em>Carregando...</em>
+            }   
         } 
-        else if (searchPerformed)
-        {
-            <em>Nenhum registro encontrado...</em>
-        }   
     </p>
 }
 else
@@ -78,27 +81,10 @@ else
     private string? errorMessage = null;
     private bool searchPerformed = false;
     private IEnumerable<IBGE> localities { get; set; } = Enumerable.Empty<IBGE>();
-
-    public class SearchBox
-    {
-        public SearchType searchType { get; set; } = SearchType.Code;
-        public string search = string.Empty;
-    }
     private SearchBox searchBox = new();
-
-    public enum SearchType
-    {
-        [Display(Name = "Código")]
-        Code,
-        [Display(Name = "Cidade")]
-        City,
-        [Display(Name = "Estado")]
-        State
-    }
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        searchBox.searchType = SearchType.Code;
         await LoadAllContentAsync();
     }
 
@@ -133,8 +119,7 @@ else
         {
             switch (searchBox.searchType)
             {
-                case SearchType.Code:
-                    // Verifica se o valor é composto apenas por números
+                case Enums.SearchType.Code:
                     if (!int.TryParse(searchBox.search, out _))
                     {
                         errorMessage = "Código deve ser numérico e ter no máximo 7 digitos";
@@ -147,8 +132,7 @@ else
                     .ToListAsync();
                     break;
 
-                case SearchType.City:
-                    // Verifica se o valor tem pelo menos 3 caracteres
+                case Enums.SearchType.City:
                     if (searchBox.search.Length < 3)
                     {
                         errorMessage = "Cidade deve conter ao menos 3 caracteres.";
@@ -161,8 +145,8 @@ else
                     .ToListAsync();
                     break;
 
-                case SearchType.State:
-                    // Verifica se o tipo de pesquisa é "State" e se o valor é uma sigla de estado
+                case Enums.SearchType.State:
+                    // Verifica se o valor é uma sigla de estado
                     if (!Regex.IsMatch(searchBox.search, "^[A-Za-z]{2}$", RegexOptions.IgnoreCase))
                     {
                         errorMessage = "Estado deve conter apenas letras e ter exatamente 2 caracteres.";

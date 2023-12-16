@@ -1,6 +1,6 @@
 namespace DesafioBlazor.Data.SharedContext;
 
-public class Const
+public static class Const
 {
     public const string LengthMessage = "{0} precisa ter menos de {1} caracteres";
     public const string RequiredMessage = "{0} não pode ser vazio";
