@@ -6,7 +6,7 @@ public class SearchBox
 {
     public SearchBox()
     {
-        searchType = SearchType.Code;
+        searchType = SearchType.City;
         search = string.Empty;
     }
     public SearchType searchType { get; set; }

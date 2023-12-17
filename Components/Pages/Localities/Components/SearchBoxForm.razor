@@ -3,7 +3,14 @@
         <InputSelect @bind-Value="model.searchType" class="btn btn-outline-secondary dropdown-toggle">
             @foreach (var value in Enum.GetValues<Enums.SearchType>())
             {
-                <option value="@value">@(EnumHelper.GetEnumDisplayName(value))</option>
+                @if (model.searchType == value)
+                {
+                    <option selected value="@value">@(EnumHelper.GetEnumDisplayName(value))</option>
+                }
+                else
+                {
+                    <option value="@value">@(EnumHelper.GetEnumDisplayName(value))</option>
+                }
             }
         </InputSelect>
 
