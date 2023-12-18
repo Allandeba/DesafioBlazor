@@ -17,10 +17,9 @@
 
 <PageTitle>Cadastre-se</PageTitle>
 
-<h1>Cadastre-se</h1>
-
-<div class="row">
+<div class="row justify-content-center">
     <div class="col-md-4">
+        <h1>Cadastre-se</h1>
         <StatusMessage Message="@Message" />
         <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
             <DataAnnotationsValidator />
@@ -30,27 +29,17 @@
             <div class="form-floating mb-3">
                 <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
                 <label for="email">Email</label>
-                <ValidationMessage For="() => Input.Email" class="text-danger" />
             </div>
             <div class="form-floating mb-3">
                 <InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="senha" />
                 <label for="password">Senha</label>
-                <ValidationMessage For="() => Input.Password" class="text-danger" />
             </div>
             <div class="form-floating mb-3">
                 <InputText type="password" @bind-Value="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="senha" />
                 <label for="confirm-password">Confirmar senha</label>
-                <ValidationMessage For="() => Input.ConfirmPassword" class="text-danger" />
             </div>
             <button type="submit" class="w-100 btn btn-lg btn-primary">Cadastre-se</button>
         </EditForm>
-    </div>
-    <div class="col-md-6 col-md-offset-2">
-        <section>
-            <h3>Use outro serviço para se cadastrar</h3>
-            <hr />
-            <ExternalLoginPicker />
-        </section>
     </div>
 </div>
 
@@ -125,15 +114,17 @@
 
     private sealed class InputModel
     {
-        [Required]
-        [EmailAddress]
+        [Required(ErrorMessage = "O campo Email é obrigatório.")]
+        [EmailAddress(ErrorMessage = "O formato do email é inválido.")]
         [Display(Name = "Email")]
         public string Email { get; set; } = "";
 
-        [Required]
+        [Required(ErrorMessage = "O campo Senha é obrigatório.")]
         [StringLength(100, ErrorMessage = "O {0} deve ter pelo menos {2} e no máximo {1} caracteres.", MinimumLength = 6)]
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\W).*$", 
+        ErrorMessage = "A senha deve ter pelo menos uma letra minúscula, uma letra maiúscula e um caractere não alfanumérico.")]
         public string Password { get; set; } = "";
 
         [DataType(DataType.Password)]

@@ -31,8 +31,8 @@
             else
             {
                 <em>Carregando...</em>
-            }   
-        } 
+            }
+        }
     </p>
 }
 else
@@ -105,7 +105,7 @@ else
         {
             switch (searchBox.searchType)
             {
-                case Enums.SearchType.Code:
+                case Data.SharedContext.Enums.SearchType.Code:
                     if (!int.TryParse(searchBox.search, out _))
                     {
                         errorMessage = "Código deve ser numérico e ter no máximo 7 digitos";
