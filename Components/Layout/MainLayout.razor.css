@@ -10,8 +10,9 @@ main {
 }
 
 .sidebar {
+    background-position: 0px,0px,0px,0px,0px,0px,0px,0px,0px,0px;
+    background-image: radial-gradient(99% 99% at 112% 33%,rgb(0, 38, 255) 0%, #1536b900 100%),repeating-radial-gradient(75% 75% at 238% 218%, #00e1ff12 30%, #0772ff14 39%);
     
-    background: rgba(110, 150, 220, );
 }
 .top-row {
     background-color: white;
