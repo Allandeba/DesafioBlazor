@@ -1,0 +1,33 @@
+<EditForm Model="@model" OnSubmit="@HandleSubmit" FormName="SearchForm">
+    <div class="input-group mb-3">
+        <InputSelect @bind-Value="model.searchType" class="btn btn-outline-secondary dropdown-toggle">
+            @foreach (var value in Enum.GetValues<Enums.SearchType>())
+            {
+                @if (model.searchType == value)
+                {
+                    <option selected value="@value">@(EnumHelper.GetEnumDisplayName(value))</option>
+                }
+                else
+                {
+                    <option value="@value">@(EnumHelper.GetEnumDisplayName(value))</option>
+                }
+            }
+        </InputSelect>
+
+        <InputText class="form-control" @bind-Value="model.search"></InputText>
+
+        <button type="submit" class="btn btn-outline-secondary">Pesquisar</button>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public SearchBox model { get; set; } = new();
+    [Parameter]    
+    public EventCallback onSubmit { get; set; }
+
+    private void HandleSubmit()
+    {
+        onSubmit.InvokeAsync();
+    }
+}

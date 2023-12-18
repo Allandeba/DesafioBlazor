@@ -1,31 +1,16 @@
 ﻿@page "/localities"
 @using System.Text.RegularExpressions
 @using System.ComponentModel.DataAnnotations
+@using DesafioBlazor.Components.Pages.Localities.Components
 @using DesafioBlazor.Data.SharedContext.Services
 @attribute [Authorize]
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
 
-<h1>Localidades IBGE</h1>
-<button class="btn btn-primary" @onclick="NewLocality">Criar</button>
-<br>
-<br>
-
-<div class="input-group mb-3">
-    <InputSelect @bind-Value="searchType">
-        @foreach (var value in Enum.GetValues<SearchType>())
-        {
-            <option value="@value">@(EnumHelper.GetEnumDisplayName(value))</option>
-        }
-    </InputSelect>
-    <InputText class="form-control" @bind-Value="search"></InputText>
-
-    <div class="input-group-append">
-        <button class="btn btn-outline-secondary" type="button" @onclick="Search">Pesquisar</button>
-    </div>
+<div class="my-4">
+    <h1 class="mb-4">Localidades IBGE</h1>
+    <button class="btn btn-primary btn-lg mb-2" @onclick="NewLocality">Criar</button>
+    <SearchBoxForm model="@searchBox" onSubmit="@Search" />
 </div>
-
-<br>
-<br>
 
 @if (!string.IsNullOrEmpty(errorMessage))
 {
@@ -37,19 +22,22 @@
 @if (!localities.Any())
 {
     <p class="text-center">
-        @if (string.IsNullOrEmpty(errorMessage) && !searchPerformed)
+        @if (string.IsNullOrEmpty(errorMessage))
         {
-            <em>Carregando...</em>
+            @if (searchPerformed)
+            {
+                <em>Nenhum registro encontrado...</em>
+            }
+            else
+            {
+                <em>Carregando...</em>
+            }   
         } 
-        else if (searchPerformed)
-        {
-            <em>Nenhum registro encontrado...</em>
-        }   
     </p>
 }
 else
 {
-    <table class="table table-stripped">
+    <table class="table table-striped">
         <thead>
             <tr>
                 <th>Id</th>
@@ -67,8 +55,6 @@ else
                     <td>@locality.State</td>
                     <td>
                         <button class="btn btn-secondary btn-sm" @onclick="() => EditLocality(locality.Id)">Editar</button>
-                    </td>
-                    <td>
                         <button class="btn btn-danger btn-sm" @onclick="() => DeleteLocality(locality.Id)">Deletar</button>
                     </td>
                 </tr>
@@ -80,23 +66,11 @@ else
 @code {
     private string? errorMessage = null;
     private bool searchPerformed = false;
-    private SearchType searchType = SearchType.Code;
     private IEnumerable<IBGE> localities { get; set; } = Enumerable.Empty<IBGE>();
-
-    private string? search = null;
-    public enum SearchType
-    {
-        [Display(Name = "Código")]
-        Code,
-        [Display(Name = "Cidade")]
-        City,
-        [Display(Name = "Estado")]
-        State
-    }
+    private SearchBox searchBox = new();
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        searchType = SearchType.Code;
         await LoadAllContentAsync();
     }
 
@@ -120,7 +94,7 @@ else
         errorMessage = null;
         localities = Enumerable.Empty<IBGE>();
 
-        if (string.IsNullOrWhiteSpace(search))
+        if (string.IsNullOrWhiteSpace(searchBox.search))
         {
             await LoadAllContentAsync();
             return;
@@ -129,46 +103,44 @@ else
         searchPerformed = false;
         try
         {
-            switch (searchType)
+            switch (searchBox.searchType)
             {
-                case SearchType.Code:
-                    // Verifica se o valor é composto apenas por números
-                    if (!int.TryParse(search, out _))
+                case Enums.SearchType.Code:
+                    if (!int.TryParse(searchBox.search, out _))
                     {
                         errorMessage = "Código deve ser numérico e ter no máximo 7 digitos";
                         return;
                     }
 
                     localities = await _context.IBGE
-                    .Where(x => EF.Functions.ILike(x.Id, $"%{search}%"))
+                    .Where(x => EF.Functions.ILike(x.Id, $"%{searchBox.search}%"))
                     .AsNoTracking()
                     .ToListAsync();
                     break;
 
-                case SearchType.City:
-                    // Verifica se o valor tem pelo menos 3 caracteres
-                    if (search.Length < 3)
+                case Enums.SearchType.City:
+                    if (searchBox.search.Length < 3)
                     {
                         errorMessage = "Cidade deve conter ao menos 3 caracteres.";
                         return;
                     }
 
                     localities = await _context.IBGE
-                    .Where(x => EF.Functions.ILike(x.City, $"%{search}%"))
+                    .Where(x => EF.Functions.ILike(x.City, $"%{searchBox.search}%"))
                     .AsNoTracking()
                     .ToListAsync();
                     break;
 
-                case SearchType.State:
-                    // Verifica se o tipo de pesquisa é "State" e se o valor é uma sigla de estado
-                    if (!Regex.IsMatch(search, "^[A-Za-z]{2}$", RegexOptions.IgnoreCase))
+                case Enums.SearchType.State:
+                    // Verifica se o valor é uma sigla de estado
+                    if (!Regex.IsMatch(searchBox.search, "^[A-Za-z]{2}$", RegexOptions.IgnoreCase))
                     {
                         errorMessage = "Estado deve conter apenas letras e ter exatamente 2 caracteres.";
                         return;
                     }
 
                     localities = await _context.IBGE
-                    .Where(x => EF.Functions.ILike(x.State, $"%{search}%"))
+                    .Where(x => EF.Functions.ILike(x.State, $"%{searchBox.search}%"))
                     .AsNoTracking()
                     .ToListAsync();
                     break;
