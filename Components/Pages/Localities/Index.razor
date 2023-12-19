@@ -106,10 +106,6 @@ else
     [Parameter]
     public int pageNumber { get; set; } = 1;
     private bool isFirstPage => pageNumber <= 1;
-    private const int maxVisiblePagesPagination = 2;
-    private bool isLimiteVisualizacao(int currentPage) => currentPage >= pageNumber + maxVisiblePagesPagination;
-    private bool canMostrarUltimasPaginas => pageCount - maxVisiblePagesPagination >= pageNumber +
-    maxVisiblePagesPagination;
     private bool hasMoreRecords = false;
     public int pageCount { get; set; } = 1;
     private int skip { get; set; } = 0;
