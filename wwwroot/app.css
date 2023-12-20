@@ -1,9 +1,25 @@
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    html, body {
+        font-family: 'Montserrat','sans-serif';
+        background-position: 0px,0px,0px,0px,0px,0px,0px,0px,0px,0px;
+        background-image: radial-gradient(99% 99% at 112% 53%,rgb(0, 38, 255) 0%, #1536b900 100%),repeating-radial-gradient(75% 75% at 238% 218%, #00e1ff12 30%, #0772ff14 39%);
+    
+    
+    }
 }
 
 a, .btn-link {
     color: #006bb7;
+}
+
+p {
+    font-weight: bold;
+}
+
+em {
+    font-size: 20px;
+    color: black;
+    font-weight: bold;
 }
 
 .btn-primary {
