@@ -6,6 +6,7 @@
 @using System.Linq.Expressions
 @attribute [Authorize]
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
+@attribute [StreamRendering(true)]
 
 <div class="my-4">
     <h1 class="mb-4">Localidades IBGE</h1>
