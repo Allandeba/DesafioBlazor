@@ -238,7 +238,7 @@ else
 
             _context.IBGE.Remove(locality);
             await _context.SaveChangesAsync();
-            await LoadAllContentAsync();
+            await Search();
         }
         catch (Exception e)
         {
