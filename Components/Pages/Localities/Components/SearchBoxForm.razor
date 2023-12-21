@@ -21,8 +21,10 @@
 </EditForm>
 
 @code {
+    [EditorRequired]
     [Parameter]
     public SearchBox model { get; set; } = new();
+    [EditorRequired]
     [Parameter]
     public EventCallback onSubmit { get; set; }
 

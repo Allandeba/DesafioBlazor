@@ -26,8 +26,10 @@
 </EditForm>
 
 @code {
+    [EditorRequired]
     [Parameter]
     public IBGE model { get; set; } = new();
+    [EditorRequired]
     [Parameter]
     public EventCallback onValidSubmit { get; set; }
 
