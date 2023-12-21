@@ -1,6 +1,6 @@
 <EditForm Model="@model" OnSubmit="@HandleSubmit" FormName="SearchForm">
     <div class="input-group mb-3">
-        <InputSelect @bind-Value="model.searchType" class="btn btn-outline-secondary dropdown-toggle">
+        <InputSelect @bind-Value="model.searchType" class="btn btn-secondary btn-outline-info dropdown-toggle">
             @foreach (var value in Enum.GetValues<Enums.SearchType>())
             {
                 @if (model.searchType == value)
@@ -16,14 +16,14 @@
 
         <InputText class="form-control" @bind-Value="model.search"></InputText>
 
-        <button type="submit" class="btn btn-outline-secondary">Pesquisar</button>
+        <button type="submit" class="btn btn-secondary btn-outline-info">Pesquisar</button>
     </div>
 </EditForm>
 
 @code {
     [Parameter]
     public SearchBox model { get; set; } = new();
-    [Parameter]    
+    [Parameter]
     public EventCallback onSubmit { get; set; }
 
     private void HandleSubmit()

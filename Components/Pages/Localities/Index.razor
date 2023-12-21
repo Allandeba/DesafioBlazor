@@ -42,9 +42,9 @@ else
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Id</th>
-                <th>City</th>
-                <th>State</th>
+                <th>Código</th>
+                <th>Cidade</th>
+                <th>Estado</th>
                 <th></th>
             </tr>
         </thead>
@@ -69,46 +69,44 @@ else
             <li class="page-item @(isFirstPage ? "disabled" : "")">
                 <button class="page-link" @onclick="e => Search(pageNumber - 1)">Anterior</button>
             </li>
-             
-        @*
-            @for (int i = pageNumber; i <= pageCount; i++)
-            {   
-                // Não sei por que, mas quando clica no número em um cenário especifico ele diz que o "i" é um número maior que o pageCount
-                // Pesquisar por "Santo"
-                // Ir até a página 5
-                // Clicar no número 7, por exemplo
-                // Ele chega no breakPoint com o i == 9 e o meu pageCount == 8
-                @* <li class="page-item @(pageNumber == i ? "active" : "")">
-                    <button class="page-link" @onclick="e => Search(i)">@i</button>
-                </li> *@
 
-                @* @if (isLimiteVisualizacao(i) && canMostrarUltimasPaginas)
-                {
-                    <li class="page-item">
-                        <span class="page-link">...</span>
-                    </li>
-                       
-                    <li class="page-item">
-                        <button class="page-link" @onclick="e => Search(pageCount)">@pageCount</button> 
-                    </li>
+            @*
+        @for (int i = pageNumber; i <= pageCount; i++)
+        {
+        // Não sei por que, mas quando clica no número em um cenário especifico ele diz que o "i" é um número maior que
+        o pageCount
+        // Pesquisar por "Santo"
+        // Ir até a página 5
+        // Clicar no número 7, por exemplo
+        // Ele chega no breakPoint com o i == 9 e o meu pageCount == 8
+        @* <li class="page-item @(pageNumber == i ? "active" : "")">
+        <button class="page-link" @onclick="e => Search(i)">@i</button>
+        </li> *@
 
-                    break;
-                } *@
+            @* @if (isLimiteVisualizacao(i) && canMostrarUltimasPaginas)
+        {
+        <li class="page-item">
+        <span class="page-link">...</span>
+        </li>
+
+        <li class="page-item">
+        <button class="page-link" @onclick="e => Search(pageCount)">@pageCount</button>
+        </li>
+
+        break;
+        } *@
             @* } *@
             <li class="page-item @(hasMoreRecords ? "" : "disabled")">
                 <button class="page-link" @onclick="e => Search(pageNumber + 1)">Próximo</button>
             </li>
         </ul>
     </nav>
-} 
+}
 
 @code {
     [Parameter]
     public int pageNumber { get; set; } = 1;
     private bool isFirstPage => pageNumber <= 1;
-    private const int maxPaginasVisiveisPaginacao = 2;
-    private bool isLimiteVisualizacao(int paginaAtual) => paginaAtual >= pageNumber + maxPaginasVisiveisPaginacao;
-    private bool canMostrarUltimasPaginas => pageCount - maxPaginasVisiveisPaginacao >= pageNumber + maxPaginasVisiveisPaginacao;
     private bool hasMoreRecords = false;
     public int pageCount { get; set; } = 1;
     private int skip { get; set; } = 0;
@@ -126,7 +124,7 @@ else
 
     private async Task LoadAllContentAsync()
     {
-        localities = await PerformSearch(null);        
+        localities = await PerformSearch(null);
     }
 
     private void NewLocality() => _navigation.NavigateTo("/localities/create", false);
@@ -147,7 +145,7 @@ else
 
         if (string.IsNullOrWhiteSpace(searchBox.search))
         {
-            await LoadAllContentAsync(); 
+            await LoadAllContentAsync();
             return;
         }
 
@@ -213,13 +211,13 @@ else
         var totalRecords = await query.CountAsync();
 
         query = query
-            .OrderBy(x => x.Id)
-            .Skip(skip)
-            .Take(take);
+        .OrderBy(x => x.Id)
+        .Skip(skip)
+        .Take(take);
 
         var result = await query
-            .AsNoTracking()
-            .ToListAsync();
+        .AsNoTracking()
+        .ToListAsync();
 
         pageCount = (int)Math.Ceiling((double)totalRecords / take);
         var totalViewRecords = result.Count();

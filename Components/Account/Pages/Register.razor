@@ -61,12 +61,27 @@
         await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
         var emailStore = GetEmailStore();
         await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+        
+        var existingUser = await UserManager.FindByEmailAsync(Input.Email);
+        if (existingUser != null)
+        {
+            identityErrors = new List<IdentityError>
+            {
+                new IdentityError
+                {
+                    Code = "DuplicateEmail",
+                    Description = "Este e-mail já está em uso. Por favor, escolha outro."
+                }
+            };
+
+        return;
+    }
+        
         var result = await UserManager.CreateAsync(user, Input.Password);
 
         if (!result.Succeeded)
         {
             identityErrors = result.Errors;
-            return;
         }
 
         Logger.LogInformation("O usuário criou uma nova conta com senha.");
