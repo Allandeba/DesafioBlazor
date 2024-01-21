@@ -5,7 +5,7 @@
 @using DesafioBlazor.Data.SharedContext.Services
 @using System.Linq.Expressions
 @attribute [Authorize]
-@rendermode @(new InteractiveServerRenderMode(prerender: false))
+@rendermode InteractiveServer
 @attribute [StreamRendering(true)]
 
 <div class="my-4">
@@ -116,10 +116,14 @@ else
     private bool searchPerformed = false;
     private IEnumerable<IBGE> localities { get; set; } = Enumerable.Empty<IBGE>();
     private SearchBox searchBox = new();
-    protected override async Task OnInitializedAsync()
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await base.OnInitializedAsync();
+        if (!firstRender) return;
+
+        await base.OnAfterRenderAsync(firstRender);
         await LoadAllContentAsync();
+        StateHasChanged();
     }
 
     private async Task LoadAllContentAsync()
